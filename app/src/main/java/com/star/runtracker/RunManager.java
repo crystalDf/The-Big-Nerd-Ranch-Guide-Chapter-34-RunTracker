@@ -92,24 +92,24 @@ public class RunManager {
         return getLocationPendingIntent(false) != null;
     }
 
+    public boolean isTrackingRun(Run run) {
+        return run != null && run.getId() == mCurrentRunId;
+    }
+
     private void broadcastLocation(Location location) {
         Intent broadcast = new Intent(ACTION_LOCATION);
         broadcast.putExtra(LocationManager.KEY_LOCATION_CHANGED, location);
         mAppContext.sendBroadcast(broadcast);
     }
 
-    public Run startTrackingRun() {
-        Run run = insertRun();
+    public Run startTrackingRun(Run run) {
+        if (run == null) {
+            run = insertRun();
+        }
         mCurrentRunId = run.getId();
         mSharedPreferences.edit().putLong(PREF_CURRENT_RUN_ID, mCurrentRunId).commit();
         startLocationUpdates();
 
-        return run;
-    }
-
-    private Run insertRun() {
-        Run run = new Run();
-        run.setId(mRunDatabaseHelper.insertRun(run));
         return run;
     }
 
@@ -118,11 +118,52 @@ public class RunManager {
         mSharedPreferences.edit().remove(PREF_CURRENT_RUN_ID).commit();
     }
 
+    private Run insertRun() {
+        Run run = new Run();
+        run.setId(mRunDatabaseHelper.insertRun(run));
+        return run;
+    }
+
+    public RunDatabaseHelper.RunCursor queryRuns() {
+        return mRunDatabaseHelper.queryRuns();
+    }
+
+    public Run getRun(long runId) {
+        Run run = null;
+        RunDatabaseHelper.RunCursor runCursor = mRunDatabaseHelper.queryRun(runId);
+
+        runCursor.moveToFirst();
+
+        if (!runCursor.isAfterLast()) {
+            run = runCursor.getRun();
+        }
+
+        runCursor.close();
+
+        return run;
+    }
+
     public void insertLocation(Location location) {
         if (isTrackingRun()) {
             mRunDatabaseHelper.insertLocation(mCurrentRunId, location);
         } else {
             Log.e(TAG, "Location received with no tracking run; ignoring.");
         }
+    }
+
+    public Location getLastLocationForRun(long runId) {
+        Location location = null;
+        RunDatabaseHelper.LocationCursor locationCursor=
+                mRunDatabaseHelper.queryLastLocationForRun(runId);
+
+        locationCursor.moveToFirst();
+
+        if (!locationCursor.isAfterLast()) {
+            location = locationCursor.getLocation();
+        }
+
+        locationCursor.close();
+
+        return location;
     }
 }

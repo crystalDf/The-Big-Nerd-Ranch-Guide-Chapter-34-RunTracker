@@ -20,7 +20,7 @@ import java.util.Date;
 
 public class RunFragment extends Fragment {
 
-    private static final String START_DATE = "startDate";
+    public static final String EXTRA_RUN_ID = "com.star.runtracker.run_id";
 
     private Button mStartButton, mStopButton;
     private TextView mStartedTextView, mLatitudeTextView, mLongitudeTextView,
@@ -38,6 +38,13 @@ public class RunFragment extends Fragment {
         setRetainInstance(true);
 
         mRunManager = RunManager.getInstance(getActivity());
+
+        long runId = getActivity().getIntent().getLongExtra(EXTRA_RUN_ID, 0);
+
+        if (runId != 0) {
+            mRun = mRunManager.getRun(runId);
+            mLastLocation = mRunManager.getLastLocationForRun(mRun.getId());
+        }
     }
 
     @Override
@@ -54,13 +61,7 @@ public class RunFragment extends Fragment {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRun = mRunManager.startTrackingRun();
-                mLastLocation = null;
-
-                PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .edit()
-                        .putLong(START_DATE, mRun.getStartDate().getTime())
-                        .commit();
+                mRun = mRunManager.startTrackingRun(mRun);
 
                 updateUI();
             }
@@ -71,10 +72,6 @@ public class RunFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mRunManager.stopTrackingRun();
-
-                PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .edit().remove(START_DATE)
-                        .commit();
 
                 updateUI();
             }
@@ -87,9 +84,10 @@ public class RunFragment extends Fragment {
 
     private void updateUI() {
         boolean started = mRunManager.isTrackingRun();
+        boolean trackingThisRun = mRunManager.isTrackingRun(mRun);
 
         mStartButton.setEnabled(!started);
-        mStopButton.setEnabled(started);
+        mStopButton.setEnabled(started && trackingThisRun);
 
         if (mRun != null) {
             mStartedTextView.setText(mRun.getFormattedDate());
@@ -112,6 +110,10 @@ public class RunFragment extends Fragment {
         protected void onLocationReceived(Context context, Location location) {
             // super.onLocationReceived(context, location);
 
+            if (!mRunManager.isTrackingRun(mRun)) {
+                return;
+            }
+
             mLastLocation = location;
             if (isVisible()) {
                 updateUI();
@@ -130,14 +132,8 @@ public class RunFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        getActivity().registerReceiver(mLocationReceiver, new IntentFilter(RunManager.ACTION_LOCATION));
-
-        mRun = new Run();
-        long startDateLong = PreferenceManager.
-                getDefaultSharedPreferences(getActivity()).getLong(START_DATE, 0);
-        if (startDateLong != 0) {
-            mRun.setStartDate(new Date(startDateLong));
-        }
+        getActivity().registerReceiver(mLocationReceiver,
+                new IntentFilter(RunManager.ACTION_LOCATION));
     }
 
     @Override

@@ -9,7 +9,6 @@ import android.view.MenuItem;
 
 public class RunActivity extends SingleFragmentActivity {
 
-
     @Override
     protected Fragment createFragment() {
         return new RunFragment();
