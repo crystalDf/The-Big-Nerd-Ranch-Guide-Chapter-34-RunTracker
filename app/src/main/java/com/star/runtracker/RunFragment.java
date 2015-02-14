@@ -134,6 +134,13 @@ public class RunFragment extends Fragment {
         super.onStart();
         getActivity().registerReceiver(mLocationReceiver,
                 new IntentFilter(RunManager.ACTION_LOCATION));
+
+        long runId = getActivity().getIntent().getLongExtra(EXTRA_RUN_ID, 0);
+
+        if (runId != 0) {
+            mRun = mRunManager.getRun(runId);
+            mLastLocation = mRunManager.getLastLocationForRun(mRun.getId());
+        }
     }
 
     @Override
