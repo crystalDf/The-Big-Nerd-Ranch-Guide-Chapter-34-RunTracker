@@ -54,8 +54,7 @@ public class RunFragment extends Fragment {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRunManager.startLocationUpdates();
-                mRun = new Run();
+                mRun = mRunManager.startTrackingRun();
                 mLastLocation = null;
 
                 PreferenceManager.getDefaultSharedPreferences(getActivity())
@@ -71,11 +70,10 @@ public class RunFragment extends Fragment {
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRunManager.stopLocationUpdates();
+                mRunManager.stopTrackingRun();
 
                 PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .edit()
-                        .putLong(START_DATE, 0)
+                        .edit().remove(START_DATE)
                         .commit();
 
                 updateUI();
@@ -112,7 +110,7 @@ public class RunFragment extends Fragment {
     private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
         @Override
         protected void onLocationReceived(Context context, Location location) {
-            super.onLocationReceived(context, location);
+            // super.onLocationReceived(context, location);
 
             mLastLocation = location;
             if (isVisible()) {
@@ -122,7 +120,7 @@ public class RunFragment extends Fragment {
 
         @Override
         protected void onProviderEnabledChanged(boolean enabled) {
-            super.onProviderEnabledChanged(enabled);
+            // super.onProviderEnabledChanged(enabled);
 
             int toastText = enabled ? R.string.gps_enabled : R.string.gps_disabled;
             Toast.makeText(getActivity(), toastText, Toast.LENGTH_LONG).show();

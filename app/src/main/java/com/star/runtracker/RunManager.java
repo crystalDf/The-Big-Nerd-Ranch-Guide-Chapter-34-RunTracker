@@ -4,6 +4,7 @@ package com.star.runtracker;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
@@ -11,6 +12,9 @@ import android.util.Log;
 public class RunManager {
 
     private static final String TAG = "RunManager";
+
+    private static final String PREFS_FILE = "runs";
+    private static final String PREF_CURRENT_RUN_ID = "RunManager.currentRunId";
 
     public static final String ACTION_LOCATION =
             "com.star.runtracker.ACTION_LOCATION";
@@ -23,9 +27,16 @@ public class RunManager {
 
     private LocationManager mLocationManager;
 
+    private RunDatabaseHelper mRunDatabaseHelper;
+    private SharedPreferences mSharedPreferences;
+    private long mCurrentRunId;
+
     private RunManager(Context appContext) {
         mAppContext = appContext;
         mLocationManager = (LocationManager) mAppContext.getSystemService(Context.LOCATION_SERVICE);
+
+        mRunDatabaseHelper = new RunDatabaseHelper(mAppContext);
+        mSharedPreferences = mAppContext.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
     }
 
     public static RunManager getInstance(Context context) {
@@ -85,5 +96,33 @@ public class RunManager {
         Intent broadcast = new Intent(ACTION_LOCATION);
         broadcast.putExtra(LocationManager.KEY_LOCATION_CHANGED, location);
         mAppContext.sendBroadcast(broadcast);
+    }
+
+    public Run startTrackingRun() {
+        Run run = insertRun();
+        mCurrentRunId = run.getId();
+        mSharedPreferences.edit().putLong(PREF_CURRENT_RUN_ID, mCurrentRunId).commit();
+        startLocationUpdates();
+
+        return run;
+    }
+
+    private Run insertRun() {
+        Run run = new Run();
+        run.setId(mRunDatabaseHelper.insertRun(run));
+        return run;
+    }
+
+    public void stopTrackingRun() {
+        stopLocationUpdates();
+        mSharedPreferences.edit().remove(PREF_CURRENT_RUN_ID).commit();
+    }
+
+    public void insertLocation(Location location) {
+        if (isTrackingRun()) {
+            mRunDatabaseHelper.insertLocation(mCurrentRunId, location);
+        } else {
+            Log.e(TAG, "Location received with no tracking run; ignoring.");
+        }
     }
 }

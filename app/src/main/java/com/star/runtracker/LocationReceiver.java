@@ -27,6 +27,7 @@ public class LocationReceiver extends BroadcastReceiver {
     protected void onLocationReceived(Context context, Location location) {
         Log.d(TAG, this + " Got location from " + location.getProvider() + ": " +
                 location.getLatitude() + ", " + location.getLongitude());
+        RunManager.getInstance(context).insertLocation(location);
     }
 
     protected void onProviderEnabledChanged(boolean enabled) {
