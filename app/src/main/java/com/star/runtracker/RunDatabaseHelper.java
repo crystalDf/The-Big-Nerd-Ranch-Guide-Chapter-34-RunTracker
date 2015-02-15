@@ -21,6 +21,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper{
     private static final String COLUMN_RUN_START_DATE = "start_date";
 
     private static final String TABLE_LOCATION = "location";
+    private static final String COLUMN_LOCATION_ID = "_id";
     private static final String COLUMN_LOCATION_TIMESTAMP = "timestamp";
     private static final String COLUMN_LOCATION_LATITUDE = "latitude";
     private static final String COLUMN_LOCATION_LONGITUDE = "longitude";
@@ -30,18 +31,18 @@ public class RunDatabaseHelper extends SQLiteOpenHelper{
 
     private static final String CREATE_TABLE_RUN =
             "CREATE TABLE " + TABLE_RUN + " (" +
-                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "start_date INTEGER" + ")";
+                    COLUMN_RUN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_RUN_START_DATE + " INTEGER" + ")";
 
     private static final String CREATE_TABLE_LOCATION =
             "CREATE TABLE " + TABLE_LOCATION + " (" +
-                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "timestamp INTEGER, " +
-                    "latitude REAL, " +
-                    "longitude REAL, " +
-                    "altitude REAL, " +
-                    "provider VARCHAR(100), " +
-                    "run_id INTEGER REFERENCES run(_id)" + ")";
+                    COLUMN_LOCATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_LOCATION_TIMESTAMP + " INTEGER, " +
+                    COLUMN_LOCATION_LATITUDE + " REAL, " +
+                    COLUMN_LOCATION_LONGITUDE + " REAL, " +
+                    COLUMN_LOCATION_ALTITUDE + " REAL, " +
+                    COLUMN_LOCATION_PROVIDER + " VARCHAR(100), " +
+                    COLUMN_LOCATION_RUN_ID + " INTEGER REFERENCES run(_id)" + ")";
 
     public RunDatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
