@@ -57,7 +57,7 @@ public class RunManager {
         return PendingIntent.getBroadcast(mAppContext, 0, broadcast, flags);
     }
 
-    public void startLocationUpdates() {
+    private void startLocationUpdates() {
         String provider = LocationManager.GPS_PROVIDER;
 
         if (mLocationManager.getProvider(TEST_PROVIDER) != null &&
@@ -79,7 +79,7 @@ public class RunManager {
         }
     }
 
-    public void stopLocationUpdates() {
+    private void stopLocationUpdates() {
         PendingIntent pi = getLocationPendingIntent(false);
 
         if (pi != null) {
