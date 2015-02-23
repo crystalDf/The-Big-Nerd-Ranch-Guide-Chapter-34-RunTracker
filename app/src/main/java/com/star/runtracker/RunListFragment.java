@@ -83,10 +83,16 @@ public class RunListFragment extends ListFragment {
                             case R.id.menu_item_delete_run:
                                 RunCursorAdapter adapter = (RunCursorAdapter) getListAdapter();
                                 RunManager runManager = RunManager.getInstance(getActivity());
+                                long currentRunId = getActivity().getSharedPreferences(
+                                        RunManager.PREFS_FILE, Context.MODE_PRIVATE).getLong(
+                                        RunManager.PREF_CURRENT_RUN_ID, 0);
                                 for (int i = adapter.getCount() - 1; i >= 0; i--) {
                                     if (getListView().isItemChecked(i)) {
                                         RunDatabaseHelper.RunCursor runCursor = (RunDatabaseHelper.RunCursor) adapter.getItem(i);
-                                        runManager.removeRun(runCursor.getRun().getId());
+                                        long runId = runCursor.getRun().getId();
+                                        if (runId != currentRunId) {
+                                            runManager.removeRun(runId);
+                                        }
                                     }
                                 }
                                 actionMode.finish();

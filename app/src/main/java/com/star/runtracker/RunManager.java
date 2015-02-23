@@ -13,8 +13,8 @@ public class RunManager {
 
     private static final String TAG = "RunManager";
 
-    private static final String PREFS_FILE = "runs";
-    private static final String PREF_CURRENT_RUN_ID = "RunManager.currentRunId";
+    public static final String PREFS_FILE = "runs";
+    public static final String PREF_CURRENT_RUN_ID = "RunManager.currentRunId";
 
     public static final String ACTION_LOCATION =
             "com.star.runtracker.ACTION_LOCATION";
