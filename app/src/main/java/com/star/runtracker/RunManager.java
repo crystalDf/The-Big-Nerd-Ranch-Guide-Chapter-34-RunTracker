@@ -116,6 +116,7 @@ public class RunManager {
     public void stopTrackingRun() {
         stopLocationUpdates();
         mSharedPreferences.edit().remove(PREF_CURRENT_RUN_ID).commit();
+        mCurrentRunId = 0;
     }
 
     public void removeRun(long runId) {

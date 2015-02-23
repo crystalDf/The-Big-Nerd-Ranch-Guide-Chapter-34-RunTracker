@@ -20,4 +20,6 @@
 
     <string name="delete_run">Delete Run</string>
 
+    <string name="current_run_id">Current Run ID</string>
+
 </resources>

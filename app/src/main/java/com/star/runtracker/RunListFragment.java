@@ -2,15 +2,22 @@ package com.star.runtracker;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
@@ -138,6 +145,39 @@ public class RunListFragment extends ListFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        long currentRunId = getActivity().getSharedPreferences(
+                RunManager.PREFS_FILE, Context.MODE_PRIVATE).getLong(
+                RunManager.PREF_CURRENT_RUN_ID, 0);
+
+        if (currentRunId == 0) {
+            return;
+        }
+
+        Intent i = new Intent(getActivity(), RunActivity.class);
+        i.putExtra(RunFragment.EXTRA_RUN_ID, currentRunId);
+
+        PendingIntent pi = PendingIntent.getActivity(getActivity(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Resources resources = getResources();
+
+        Notification notification = new NotificationCompat.Builder(getActivity())
+                .setTicker(resources.getString(R.string.current_run_id))
+                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                .setContentTitle(resources.getString(R.string.current_run_id))
+                .setContentText("Current Run ID is " + currentRunId)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .build();
+
+        NotificationManager notificationManager = (NotificationManager)
+                getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notification);
+    }
+
+    @Override
     public void onDestroy() {
         mRunCursor.close();
         super.onDestroy();
@@ -168,7 +208,11 @@ public class RunListFragment extends ListFragment {
             String cellText = context.getString(R.string.cell_text, run.getFormattedDate());
             startDateTextView.setText(cellText);
 
-            startDateTextView.setBackgroundResource(R.drawable.background_activated);
+            if (RunManager.getInstance(context).isTrackingRun(run)) {
+                startDateTextView.setBackgroundColor(Color.GREEN);
+            } else {
+                startDateTextView.setBackgroundResource(R.drawable.background_activated);
+            }
         }
     }
 
