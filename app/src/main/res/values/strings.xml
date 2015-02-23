@@ -18,4 +18,6 @@
 
     <string name="new_run">New Run</string>
 
+    <string name="delete_run">Delete Run</string>
+
 </resources>

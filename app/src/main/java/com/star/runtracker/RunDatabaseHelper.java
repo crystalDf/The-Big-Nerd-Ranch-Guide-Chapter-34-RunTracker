@@ -78,6 +78,16 @@ public class RunDatabaseHelper extends SQLiteOpenHelper{
         return getWritableDatabase().insert(TABLE_LOCATION, null, contentValues);
     }
 
+    public int deleteRun(long runId) {
+        return getWritableDatabase().delete(TABLE_RUN,
+                COLUMN_RUN_ID + " = ?", new String[] {runId + ""});
+    }
+
+    public int deleteLocation(long runId) {
+        return getWritableDatabase().delete(TABLE_LOCATION,
+                COLUMN_LOCATION_RUN_ID + " = ?", new String[] {runId + ""});
+    }
+
     public RunCursor queryRuns() {
         Cursor cursor = getReadableDatabase().query(
                 TABLE_RUN,

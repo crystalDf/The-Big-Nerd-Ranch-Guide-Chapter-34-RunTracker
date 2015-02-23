@@ -118,10 +118,23 @@ public class RunManager {
         mSharedPreferences.edit().remove(PREF_CURRENT_RUN_ID).commit();
     }
 
+    public void removeRun(long runId) {
+        deleteLocation(runId);
+        deleteRun(runId);
+    }
+
     private Run insertRun() {
         Run run = new Run();
         run.setId(mRunDatabaseHelper.insertRun(run));
         return run;
+    }
+
+    private int deleteRun(long runId) {
+        return mRunDatabaseHelper.deleteRun(runId);
+    }
+
+    private int deleteLocation(long runId) {
+        return mRunDatabaseHelper.deleteLocation(runId);
     }
 
     public RunDatabaseHelper.RunCursor queryRuns() {
